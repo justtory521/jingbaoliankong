@@ -17,6 +17,7 @@ import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -75,7 +76,7 @@ public class CardContentActivity extends BaseTakePhotoActivity implements Androi
     private static boolean isFirstLoaded = true;  //标记是否为第一次加载
     private IntentFilter mFilter = new IntentFilter();
     public static boolean isRunning = false;
-    private String mCode;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +113,14 @@ public class CardContentActivity extends BaseTakePhotoActivity implements Androi
         return mInstance;
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        String url = intent.getStringExtra("url");
+        if (!TextUtils.isEmpty(url)){
+            mBinding.webView.loadUrl(url);
+        }
+    }
 
     @JavascriptInterface
     public void initView() {
@@ -205,7 +214,7 @@ public class CardContentActivity extends BaseTakePhotoActivity implements Androi
             if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
                 if (i == KeyEvent.KEYCODE_BACK && mBinding.webView.canGoBack()) {
                     mBinding.webView.goBack();
-                    return false;
+                    return true;
                 }
             }
             return false;
@@ -219,18 +228,15 @@ public class CardContentActivity extends BaseTakePhotoActivity implements Androi
         ActivityCompat.requestPermissions(this, App.mPermissionList, REQUEST_ALL_PERMISSIONS);
     }
 
-    @Override
-    public void finish() {
-        super.finish();
-    }
 
-    public void finish(View view) {
+    public void closeCard(View view) {
         if (mBinding.webView.canGoBack()) {
             mBinding.webView.goBack();
         } else {
             finish();
         }
     }
+
 
     /**
      * 拍照或选择照片
@@ -310,7 +316,7 @@ public class CardContentActivity extends BaseTakePhotoActivity implements Androi
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(Request.Broadcast.RELOADURL)) {
+            if (Request.Broadcast.RELOADURL.equals(action)) {
                 String url = intent.getStringExtra("url");
                 mBinding.webView.loadUrl(url);
             }
@@ -433,7 +439,7 @@ public class CardContentActivity extends BaseTakePhotoActivity implements Androi
             String content = item.getText().toString();
             Log.e(TAG, content);
             if (content.split("=").length == 2 && content.split("=")[0].equals("lexunReferralCode")) {
-                mCode = content.split("=")[1];
+                String mCode = content.split("=")[1];
                 ConfigUnits.getInstance().setLexunReferralCode(mCode);
                 Log.e(TAG, "推广码为1：" + mCode);
                 Log.e(TAG, "推广码为2：" + ConfigUnits.getInstance().getLexunReferralCode());
