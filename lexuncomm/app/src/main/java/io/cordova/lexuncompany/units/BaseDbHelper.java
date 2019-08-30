@@ -31,7 +31,7 @@ public class BaseDbHelper extends SQLiteOpenHelper {
      * 私有化构造方法
      */
     private BaseDbHelper() {
-        super(App.context, App.BaseDB.dbName, null, App.BaseDB.version);
+        super(MyApplication.getInstance().getApplicationContext(), App.BaseDB.dbName, null, App.BaseDB.version);
     }
 
     /**

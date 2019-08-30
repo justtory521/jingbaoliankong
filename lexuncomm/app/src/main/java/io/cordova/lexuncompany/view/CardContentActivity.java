@@ -371,7 +371,7 @@ public class CardContentActivity extends BaseTakePhotoActivity implements Androi
                     if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {
                         AlertDialog alertDialog = new AlertDialog.Builder(this)
                                 .setTitle("提示")
-                                .setMessage("未获得相应权限，无法正常使用APP，请前往安全中心>权限管理>乐巡，开启相关权限")
+                                .setMessage("未获得相应权限，无法正常使用APP，请前往安全中心>权限管理>警保联控，开启相关权限")
                                 .setIcon(R.mipmap.logo)
                                 .setPositiveButton("确定", (dialogInterface, i1) -> {
                                     Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
@@ -400,7 +400,7 @@ public class CardContentActivity extends BaseTakePhotoActivity implements Androi
                     if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                         AlertDialog alertDialog = new AlertDialog.Builder(this)
                                 .setTitle("提示")
-                                .setMessage("未获得定位权限，无法正常使用APP，请前往安全中心>权限管理>智慧家园，开启相关权限")
+                                .setMessage("未获得定位权限，无法正常使用APP，请前往安全中心>权限管理>警保联控，开启相关权限")
                                 .setIcon(R.mipmap.logo)
                                 .setPositiveButton("确定", (dialogInterface, i1) -> {
                                     Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);

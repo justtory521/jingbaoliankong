@@ -1,16 +1,12 @@
 package io.cordova.lexuncompany.bean.base;
 
 import android.Manifest;
-import android.content.Context;
-
-import io.cordova.lexuncompany.application.MyApplication;
 
 /**
  * Created by JasonYao on 2018/3/5.
  */
 
 public class App {
-    public static final Context context = MyApplication.getInstance().getBaseContext();
 
     public static final String[] mPermissionList = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
