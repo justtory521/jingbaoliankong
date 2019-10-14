@@ -34,10 +34,10 @@ public class AndroidtoJS implements QrCodeScanInter, CityPickerResultListener {
 
     //巡逻相关
     private LocationClient mBaiduLocationClient;
-    private LocationClientOption mBaiduOption;
+
     //百度定位相关
     private LocationClient mBaiduLocationClient1;
-    private LocationClientOption mBaiduOption1;
+
 
     private AndroidToJSCallBack mCallBack;
     private Gson mGson = new Gson();
@@ -54,9 +54,9 @@ public class AndroidtoJS implements QrCodeScanInter, CityPickerResultListener {
 
 
     private LocationClient getBaiduLocationClient1(String callBack) {
-        if (mBaiduOption1 == null) mBaiduOption1 = new LocationClientOption();
         if (mBaiduLocationClient1 == null)
             mBaiduLocationClient1 = new LocationClient(MyApplication.getInstance());
+        LocationClientOption mBaiduOption1 = new LocationClientOption();
         mBaiduOption1.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
         mBaiduOption1.setCoorType("bd09ll");
         mBaiduOption1.setIgnoreKillProcess(false);
@@ -67,13 +67,12 @@ public class AndroidtoJS implements QrCodeScanInter, CityPickerResultListener {
         mBaiduLocationClient1.registerLocationListener(new BDAbstractLocationListener() {
             @Override
             public void onReceiveLocation(BDLocation bdLocation) {
+                if (bdLocation != null && bdLocation.getLatitude() != 0 && bdLocation.getLongitude() != 0) {
+                    sendCallBack(callBack, "200", "success", bdLocation.getLatitude() + "," + bdLocation.getLongitude());
 
-                sendCallBack(callBack, "200", "success", bdLocation.getLatitude() + "," + bdLocation.getLongitude());
-
-                mBaiduLocationClient1.stop();
-                mBaiduOption1 = null;
-                mBaiduLocationClient1 = null;
-
+                    mBaiduLocationClient1.stop();
+                    mBaiduLocationClient1 = null;
+                }
             }
         });
         return mBaiduLocationClient1;
@@ -249,8 +248,32 @@ public class AndroidtoJS implements QrCodeScanInter, CityPickerResultListener {
      */
     @JavascriptInterface
     public void getBaiduCoordinate(String callBack) {
-        Log.d(TAG, "getBaiduCoordinate: "+callBack);
-        getBaiduLocationClient1(callBack).start();
+        Log.d(TAG, "getBaiduCoordinate: " + callBack);
+        mBaiduLocationClient1 = new LocationClient(CardContentActivity.getInstance());
+
+        LocationClientOption mBaiduOption1 = new LocationClientOption();
+
+        mBaiduOption1.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
+        mBaiduOption1.setCoorType("bd09ll");
+
+        mBaiduOption1.setIgnoreKillProcess(false);
+        mBaiduOption1.setScanSpan(500);
+
+        mBaiduOption1.setOpenGps(true);
+        mBaiduLocationClient1.setLocOption(mBaiduOption1);
+        mBaiduLocationClient1.start();
+        mBaiduLocationClient1.registerLocationListener(new BDAbstractLocationListener() {
+            @Override
+            public void onReceiveLocation(BDLocation bdLocation) {
+                if (bdLocation != null && bdLocation.getLatitude() != 0 && bdLocation.getLongitude() != 0) {
+                    sendCallBack(callBack, "200", "success", bdLocation.getLatitude() + "," + bdLocation.getLongitude());
+                    if (mBaiduLocationClient1 != null) {
+                        mBaiduLocationClient1.stop();
+                        mBaiduLocationClient1 = null;
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -278,12 +301,12 @@ public class AndroidtoJS implements QrCodeScanInter, CityPickerResultListener {
 
     @JavascriptInterface
     public void beginPatrol(String callBack) {
-        Log.d(TAG, "beginPatrol: "+callBack);
+        Log.d(TAG, "beginPatrol: " + callBack);
         if (mBaiduLocationClient == null) {
 
             mBaiduLocationClient = new LocationClient(MyApplication.getInstance());
 
-            mBaiduOption = new LocationClientOption();
+            LocationClientOption mBaiduOption = new LocationClientOption();
 
             mBaiduOption.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
             mBaiduOption.setCoorType("bd09ll");
@@ -297,8 +320,11 @@ public class AndroidtoJS implements QrCodeScanInter, CityPickerResultListener {
             mBaiduLocationClient.registerLocationListener(new BDAbstractLocationListener() {
                 @Override
                 public void onReceiveLocation(BDLocation bdLocation) {
-                    Log.d(TAG, bdLocation.getLatitude() + "," + bdLocation.getLongitude());
-                    sendCallBack(callBack, "200", "success", bdLocation.getLatitude() + "," + bdLocation.getLongitude());
+                    if (bdLocation != null && bdLocation.getLatitude() != 0 && bdLocation.getLongitude() != 0) {
+                        sendCallBack(callBack, "200", "success", bdLocation.getLatitude() + "," + bdLocation.getLongitude());
+
+                    }
+
                 }
             });
         } else if (!mBaiduLocationClient.isStarted()) {
@@ -315,9 +341,9 @@ public class AndroidtoJS implements QrCodeScanInter, CityPickerResultListener {
     public void endPatrol() {
         if (mBaiduLocationClient != null) {
             mBaiduLocationClient.stop();
+            mBaiduLocationClient = null;
         }
 
-        mBaiduOption = null;
     }
 
     /**
