@@ -33,6 +33,7 @@ public class CameraPreview extends FrameLayout implements SurfaceHolder.Callback
     private CameraManager mCameraManager;
     private CameraScanAnalysis mPreviewCallback;
     private SurfaceView mSurfaceView;
+    private boolean isPreviewStart = false;
 
     public CameraPreview(Context context) {
         this(context, null);
@@ -97,6 +98,7 @@ public class CameraPreview extends FrameLayout implements SurfaceHolder.Callback
         try {
             mCameraManager.startPreview(holder, mPreviewCallback);
             mCameraManager.autoFocus(mFocusCallback);
+            isPreviewStart = true;
         } catch (Exception e) {
             e.printStackTrace();
             //如果异常延迟200ms再试
@@ -128,7 +130,7 @@ public class CameraPreview extends FrameLayout implements SurfaceHolder.Callback
 
     private Camera.AutoFocusCallback mFocusCallback = new Camera.AutoFocusCallback() {
         public void onAutoFocus(boolean success, Camera camera) {
-            postDelayed(mAutoFocusTask, 1000);
+            postDelayed(mAutoFocusTask, 500);
         }
     };
 
@@ -154,5 +156,13 @@ public class CameraPreview extends FrameLayout implements SurfaceHolder.Callback
 
     public void setZoom(float zoom){
         mCameraManager.setCameraZoom(zoom);
+    }
+
+    public void handleZoom(boolean isZoomIn){
+        mCameraManager.handleZoom(isZoomIn);
+    }
+
+    public boolean isPreviewStart(){
+        return this.isPreviewStart;
     }
 }

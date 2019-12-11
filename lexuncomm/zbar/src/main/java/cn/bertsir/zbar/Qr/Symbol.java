@@ -154,6 +154,24 @@ public class Symbol {
 
 
     /**
+     * 双识别引擎
+     */
+    public static boolean doubleEngine = false;
+
+
+    /**
+     * 持续扫描
+     */
+    public static boolean looperScan = false;
+
+
+    /**
+     * 持续扫描间隔时间
+     */
+    public static int looperWaitTime = 0;
+
+
+    /**
      * C pointer to a zbar_symbol_t.
      */
     private long peer;

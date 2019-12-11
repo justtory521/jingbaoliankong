@@ -17,9 +17,12 @@ package cn.bertsir.zbar;
 
 import android.content.Context;
 import android.hardware.Camera;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 
 import cn.bertsir.zbar.utils.QRUtils;
 
@@ -62,8 +65,8 @@ public final class CameraManager {
                 parameters = mCamera.getParameters();
                 parameters.unflatten(parametersFlattened);
                 try {
-                    mCamera.setParameters(parameters);
 
+                    mCamera.setParameters(parameters);
                     mConfiguration.setDesiredCameraParameters(mCamera, true);
                 } catch (RuntimeException e) {
                     e.printStackTrace();
@@ -71,6 +74,23 @@ public final class CameraManager {
             }
         }
     }
+
+
+    //设置相机反色效果
+    public void setEffectNegative(){
+        Camera.Parameters parameters = mCamera.getParameters();
+        List<String> colorEffects = parameters.getSupportedColorEffects();
+        Iterator<String> cei = colorEffects.iterator();
+        while (cei.hasNext()) {
+            String currentEffect = cei.next();
+            if (currentEffect.equals(Camera.Parameters.EFFECT_NEGATIVE)) {
+                parameters.setColorEffect(Camera.Parameters.EFFECT_NEGATIVE);
+                break;
+            }
+        }
+        mCamera.setParameters(parameters);
+    }
+
 
     /**
      * Closes the camera driver if still in use.
@@ -212,6 +232,26 @@ public final class CameraManager {
             int zoom = (int) (maxZoom * ratio);
             parameters.setZoom(zoom);
             mCamera.setParameters(parameters);
+        }
+    }
+
+
+    public void handleZoom(boolean isZoomIn) {
+        if(mCamera != null){
+            Camera.Parameters params = mCamera.getParameters();
+            if (params.isZoomSupported()) {
+                int maxZoom = params.getMaxZoom();
+                int zoom = params.getZoom();
+                if (isZoomIn && zoom < maxZoom) {
+                    zoom++;
+                } else if (zoom > 0) {
+                    zoom--;
+                }
+                params.setZoom(zoom);
+                mCamera.setParameters(params);
+            } else {
+                Log.i(TAG, "zoom not supported");
+            }
         }
     }
 }

@@ -3,9 +3,6 @@ package cn.bertsir.zbar.view;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
@@ -22,8 +19,7 @@ import cn.bertsir.zbar.R;
 
 public class ScanView extends FrameLayout {
 
-    private LineView iv_scan_line;
-    private TranslateAnimation animation;
+    private ScanLineView iv_scan_line;
     private FrameLayout fl_scan;
     private int CURRENT_TYEP = 1;
     private CornerView cnv_left_top;
@@ -62,39 +58,29 @@ public class ScanView extends FrameLayout {
         cornerViews.add(cnv_right_top);
         cornerViews.add(cnv_right_bottom);
 
-        iv_scan_line = (LineView) scan_view.findViewById(R.id.iv_scan_line);
+        iv_scan_line = (ScanLineView) scan_view.findViewById(R.id.iv_scan_line);
 
         fl_scan = (FrameLayout) scan_view.findViewById(R.id.fl_scan);
-
-        animation = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f, Animation
-                .RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT,
-                0.9f);
-        animation.setDuration(line_speed);
-        animation.setRepeatCount(-1);
-        animation.setRepeatMode(Animation.RESTART);
-    }
-
-    public void setLineSpeed(int speed){
-        animation.setDuration(speed);
-    }
-
-    public void startScan(){
-        iv_scan_line.startAnimation(animation);
         getViewWidthHeight();
+
     }
 
-    public void onPause(){
-        if (iv_scan_line != null) {
-            iv_scan_line.clearAnimation();
-            iv_scan_line.setVisibility(View.GONE);
-        }
+    /**
+     * 设置扫描速度
+     * @param speed
+     */
+    public void setLineSpeed(int speed){
+        iv_scan_line.setScanAnimatorDuration(speed);
     }
 
-    public void onResume(){
-        if (iv_scan_line != null) {
-            iv_scan_line.startAnimation(animation);
-        }
+
+    /**
+     * 设置扫描样式
+     */
+    public void setScanLineStyle(int style){
+        iv_scan_line.setScanStyle(style);
     }
+
 
     public void setType(int type){
         CURRENT_TYEP = type;
@@ -122,7 +108,7 @@ public class ScanView extends FrameLayout {
     }
 
     public void setLineColor(int color){
-        iv_scan_line.setLinecolor(color);
+        iv_scan_line.setScancolor(color);
     }
 
     public int dip2px(int dp) {
@@ -136,25 +122,10 @@ public class ScanView extends FrameLayout {
             public void run() {
                 Symbol.cropWidth = fl_scan.getWidth();
                 Symbol.cropHeight = fl_scan.getHeight();
-                Symbol.screenWidth = getScreenWidth();
-                Symbol.screenHeight = getScreenHeight();
-
             }
         });
     }
 
-    public int getScreenWidth() {
-        WindowManager wm = (WindowManager) getContext()
-                .getSystemService(Context.WINDOW_SERVICE);
 
-        int width = wm.getDefaultDisplay().getWidth();
-        return width;
-    }
 
-    public int getScreenHeight() {
-        WindowManager wm = (WindowManager) getContext()
-                .getSystemService(Context.WINDOW_SERVICE);
-        int height = wm.getDefaultDisplay().getHeight();
-        return height;
-    }
 }

@@ -30,7 +30,6 @@ import io.cordova.lexuncompany.view.ScanQRCodeActivity;
  */
 public class AndroidtoJS implements QrCodeScanInter, CityPickerResultListener {
     private static final String TAG = "libin";
-    private static AndroidtoJS mInstance = null;
 
     //巡逻相关
     private LocationClient mBaiduLocationClient;
@@ -43,12 +42,7 @@ public class AndroidtoJS implements QrCodeScanInter, CityPickerResultListener {
     private Gson mGson = new Gson();
 
 
-    public static AndroidtoJS getInstance(AndroidToJSCallBack callBack) {
-        mInstance = new AndroidtoJS(callBack);
-        return mInstance;
-    }
-
-    private AndroidtoJS(AndroidToJSCallBack callBack) {
+    public AndroidtoJS(AndroidToJSCallBack callBack) {
         this.mCallBack = callBack;
     }
 

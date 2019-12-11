@@ -6,13 +6,18 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
+import android.os.Vibrator;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -35,6 +40,7 @@ import com.google.zxing.common.GlobalHistogramBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
+import java.io.File;
 import java.util.Hashtable;
 
 import cn.bertsir.zbar.Qr.Config;
@@ -55,8 +61,9 @@ public class QRUtils {
 
 
     public static QRUtils getInstance() {
-        if (instance == null)
+        if (instance == null) {
             instance = new QRUtils();
+        }
         return instance;
     }
 
@@ -65,13 +72,13 @@ public class QRUtils {
     /**
      * 识别本地二维码
      *
-     * @param url
+     * @param path
      * @return
      */
-    public String decodeQRcode(String url) throws Exception {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.RGB_565;
-        Bitmap qrbmp = BitmapFactory.decodeFile(url,options);
+    public String decodeQRcode(String path) throws Exception {
+        //对图片进行灰度处理，为了兼容彩色二维码
+        Bitmap qrbmp = compressImage(path);
+        qrbmp = toGrayscale(qrbmp);
         if (qrbmp != null) {
             return decodeQRcode(qrbmp);
         } else {
@@ -107,8 +114,10 @@ public class QRUtils {
                 qrCodeString = sym.getData();
             }
         }
+        barcodeBmp.recycle();
         return qrCodeString;
     }
+
 
 
     /**
@@ -123,15 +132,7 @@ public class QRUtils {
         }
         Hashtable<DecodeHintType, String> hints = new Hashtable();
         hints.put(DecodeHintType.CHARACTER_SET, "UTF-8"); // 设置二维码内容的编码
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true; // 先获取原大小
-        scanBitmap = BitmapFactory.decodeFile(path,options);
-        options.inJustDecodeBounds = false;
-        int sampleSize = (int) (options.outHeight / (float) 200);
-        if (sampleSize <= 0)
-            sampleSize = 1;
-        options.inSampleSize = sampleSize;
-        scanBitmap = BitmapFactory.decodeFile(path, options);
+        Bitmap scanBitmap = compressImage(path);
         int[] data = new int[scanBitmap.getWidth() * scanBitmap.getHeight()];
         scanBitmap.getPixels(data, 0, scanBitmap.getWidth(), 0, 0, scanBitmap.getWidth(), scanBitmap.getHeight());
         RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(scanBitmap.getWidth(),scanBitmap.getHeight(),data);
@@ -192,7 +193,7 @@ public class QRUtils {
      * @param url
      * @return
      */
-    public String decodeBarcode(String url) throws Exception {
+    public String decodeBarcode(String url)  {
         Bitmap qrbmp = BitmapFactory.decodeFile(url);
         if (qrbmp != null) {
             return decodeBarcode(qrbmp);
@@ -202,7 +203,7 @@ public class QRUtils {
 
     }
 
-    public String decodeBarcode(ImageView iv) throws Exception {
+    public String decodeBarcode(ImageView iv) {
         Bitmap qrbmp = ((BitmapDrawable) (iv).getDrawable()).getBitmap();
         if (qrbmp != null) {
             return decodeBarcode(qrbmp);
@@ -211,7 +212,7 @@ public class QRUtils {
         }
     }
 
-    public String decodeBarcode(Bitmap barcodeBmp) throws Exception {
+    public String decodeBarcode(Bitmap barcodeBmp) {
         int width = barcodeBmp.getWidth();
         int height = barcodeBmp.getHeight();
         int[] pixels = new int[width * height];
@@ -225,7 +226,6 @@ public class QRUtils {
         reader.setConfig(Symbol.EAN13, Config.ENABLE, 1);
         reader.setConfig(Symbol.EAN8, Config.ENABLE, 1);
         reader.setConfig(Symbol.UPCA, Config.ENABLE, 1);
-        reader.setConfig(Symbol.UPCE, Config.ENABLE, 1);
         reader.setConfig(Symbol.UPCE, Config.ENABLE, 1);
         int result = reader.scanImage(barcode.convert("Y800"));
         String qrCodeString = null;
@@ -593,6 +593,78 @@ public class QRUtils {
     public  boolean isScreenOriatationPortrait(Context context) {
         return context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
     }
+
+    public float getFingerSpacing(MotionEvent event) {
+        float x = event.getX(0) - event.getX(1);
+        float y = event.getY(0) - event.getY(1);
+        return (float) Math.sqrt(x * x + y * y);
+    }
+
+
+
+    /**
+     * 对bitmap进行灰度处理
+     * @param bmpOriginal
+     * @return
+     */
+    public Bitmap toGrayscale(Bitmap bmpOriginal) {
+        int width, height;
+        height = bmpOriginal.getHeight();
+        width = bmpOriginal.getWidth();
+        Bitmap bmpGrayscale = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+        Canvas c = new Canvas(bmpGrayscale);
+        Paint paint = new Paint();
+        ColorMatrix cm = new ColorMatrix();
+        cm.setSaturation(0);
+        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
+        paint.setColorFilter(f);
+        c.drawBitmap(bmpOriginal, 0, 0, paint);
+        return bmpGrayscale;
+    }
+
+    /**
+     * 压缩图片
+     * @param path
+     * @return
+     */
+    private Bitmap compressImage(String path){
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true; // 先获取原大小
+        scanBitmap = BitmapFactory.decodeFile(path,options);
+        options.inJustDecodeBounds = false;
+        int sampleSizeH = (int) (options.outHeight / (float) 800);
+        int sampleSizeW = (int) (options.outWidth / (float) 800);
+        int sampleSize = Math.max(sampleSizeH,sampleSizeW);
+        if (sampleSize <= 0) {
+            sampleSize = 1;
+        }
+        options.inSampleSize = sampleSize;
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+        Bitmap qrbmp = BitmapFactory.decodeFile(path,options);
+        return qrbmp;
+    }
+
+
+    public boolean deleteTempFile(String delFile) {
+        File file = new File(delFile);
+        if (file.exists() && file.isFile()) {
+            if (file.delete()) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    //震动提醒
+    public void getVibrator(Context mContext){
+        Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+        long[] pattern = {0, 50, 0, 0};
+        vibrator.vibrate(pattern, -1);
+    }
+
 
 
 }

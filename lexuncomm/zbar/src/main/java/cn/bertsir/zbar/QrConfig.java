@@ -1,8 +1,11 @@
 package cn.bertsir.zbar;
 
 import android.graphics.Color;
+import android.support.annotation.DrawableRes;
 
 import java.io.Serializable;
+
+import cn.bertsir.zbar.view.ScanLineView;
 
 /**
  * Created by Bert on 2017/9/22.
@@ -12,8 +15,8 @@ public class QrConfig implements Serializable {
 
 
     public static final int LINE_FAST = 1000;
-    public static final int LINE_MEDIUM = 3000;
-    public static final int LINE_SLOW = 5000;
+    public static final int LINE_MEDIUM = 2000;
+    public static final int LINE_SLOW = 3000;
 
 
     public  int CORNER_COLOR = Color.parseColor("#ff5f00");
@@ -29,16 +32,30 @@ public class QrConfig implements Serializable {
     public boolean need_crop = true;
     public boolean show_zoom = false;
     public boolean auto_zoom = false;
+    public boolean finger_zoom = false;
     public boolean only_center = false;
     public boolean play_sound = true;
+    public boolean double_engine = false;
+    public boolean loop_scan = false;
+    public boolean show_vibrator = false;
     public String title_text = "扫描二维码";
     public String des_text = "(识别二维码)";
+    public String open_album_text = "选择要识别的图片";
     public int line_speed = LINE_FAST;
+    public int line_style = ScanLineView.style_hybrid;
     public int corner_width = 10;
+    public int loop_wait_time = 0;
+
+    public int back_img_res = R.drawable.scanner_back_img;
+    public int falsh_img_res = R.drawable.scanner_light;
+    public int album_img_res = R.drawable.scanner_album;
+
+
+
+    public boolean auto_light = false;
 
 
     public static  int ding_path = R.raw.qrcode;//默认声音
-
     public int custombarcodeformat = -1;
 
     public static final int TYPE_QRCODE = 1;//扫描二维码
@@ -52,12 +69,8 @@ public class QrConfig implements Serializable {
     public static final int SCREEN_LANDSCAPE = 2;//屏幕横向
     public static final int SCREEN_SENSOR = 3;//屏幕自动
 
-
     public int scan_type = TYPE_QRCODE;//默认只扫描二维码
     public int scan_view_type = SCANVIEW_TYPE_QRCODE;//默认为二维码扫描框
-
-
-
 
     public final static int REQUEST_CAMERA = 99;
     public final static String EXTRA_THIS_CONFIG = "extra_this_config";
@@ -123,7 +136,6 @@ public class QrConfig implements Serializable {
     public static final int BARCODE_CODE128 = 128;
 
 
-
     public int getScan_type() {
         return scan_type;
     }
@@ -176,8 +188,16 @@ public class QrConfig implements Serializable {
         return des_text;
     }
 
+    public String getOpen_album_text() {
+        return open_album_text;
+    }
+
     public int getLine_speed() {
         return line_speed;
+    }
+
+    public int getLine_style() {
+        return line_style;
     }
 
     public int getCorner_width() {
@@ -204,27 +224,44 @@ public class QrConfig implements Serializable {
         return show_zoom;
     }
 
-    public void setShow_zoom(boolean show_zoom) {
-        this.show_zoom = show_zoom;
-    }
-
     public boolean isAuto_zoom() {
         return auto_zoom;
     }
 
-    public void setAuto_zoom(boolean auto_zoom) {
-        this.auto_zoom = auto_zoom;
+    public boolean isFinger_zoom() {
+        return finger_zoom;
     }
 
     public int getSCREEN_ORIENTATION() {
         return SCREEN_ORIENTATION;
     }
 
-    public void setSCREEN_ORIENTATION(int SCREEN_ORIENTATION) {
-        this.SCREEN_ORIENTATION = SCREEN_ORIENTATION;
+    public boolean isDouble_engine() {
+        return double_engine;
+    }
+
+    public boolean isLoop_scan() {
+        return loop_scan;
+    }
+
+    public int getLoop_wait_time() {
+        return loop_wait_time;
+    }
+
+    public boolean isAuto_light() {
+        return auto_light;
     }
 
 
+    public boolean isShow_vibrator() {
+        return show_vibrator;
+    }
+
+    public int getBackImgRes(){ return back_img_res; }
+
+    public int getLightImageRes(){return falsh_img_res;}
+
+    public int getAblumImageRes(){ return album_img_res;}
 
 
     public static class Builder{
@@ -337,12 +374,66 @@ public class QrConfig implements Serializable {
             return this;
         }
 
+        public Builder setFingerZoom(boolean auto){
+            watcher.finger_zoom = auto;
+            return this;
+        }
+
 
         public Builder setScreenOrientation(int SCREEN_ORIENTATION) {
             watcher.SCREEN_ORIENTATION = SCREEN_ORIENTATION;
             return this;
         }
 
+        public Builder setDoubleEngine(boolean open) {
+            watcher.double_engine = open;
+            return this;
+        }
+
+        public Builder setOpenAlbumText(String text) {
+            watcher.open_album_text = text;
+            return this;
+        }
+
+        public Builder setLooperScan(boolean looper){
+            watcher.loop_scan = looper;
+            return this;
+        }
+
+        public Builder setLooperWaitTime(int time){
+            watcher.loop_wait_time = time;
+            return this;
+        }
+
+        public Builder setScanLineStyle(int style){
+            watcher.line_style = style;
+            return this;
+        }
+
+        public Builder setAutoLight(boolean light){
+            watcher.auto_light = light;
+            return this;
+        }
+
+        public Builder setShowVibrator(boolean vibrator){
+            watcher.show_vibrator = vibrator;
+            return this;
+        }
+
+        public Builder setBackImageRes(@DrawableRes int res){
+            watcher.back_img_res = res;
+            return this;
+        }
+
+        public Builder setLightImageRes(@DrawableRes int res){
+            watcher.falsh_img_res = res;
+            return this;
+        }
+
+        public Builder setAblumImageRes(@DrawableRes int res){
+            watcher.album_img_res = res;
+            return this;
+        }
 
         public QrConfig create(){
             return watcher;
