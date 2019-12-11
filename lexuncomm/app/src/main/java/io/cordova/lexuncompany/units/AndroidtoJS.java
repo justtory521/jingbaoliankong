@@ -39,7 +39,6 @@ public class AndroidtoJS implements QrCodeScanInter, CityPickerResultListener {
 
 
     private AndroidToJSCallBack mCallBack;
-    private Gson mGson = new Gson();
 
 
     public AndroidtoJS(AndroidToJSCallBack callBack) {
