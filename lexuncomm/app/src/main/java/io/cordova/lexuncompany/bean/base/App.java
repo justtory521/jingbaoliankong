@@ -1,6 +1,9 @@
 package io.cordova.lexuncompany.bean.base;
 
 import android.Manifest;
+import android.content.Context;
+
+import io.cordova.lexuncompany.application.MyApplication;
 
 /**
  * Created by JasonYao on 2018/3/5.
@@ -24,12 +27,10 @@ public class App {
             Manifest.permission.CAMERA
     };
 
-
     public static final String[] pictureSelect = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA
     };
-
 
     /**
      * 缓存数据库
@@ -50,6 +51,8 @@ public class App {
         public static final String CardUrl = "http://183.129.130.119:13142";
 
         public static final String BUGLY_APPID = "fb234f78a6";  //bugly
+
+
 
 
     }

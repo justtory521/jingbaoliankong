@@ -4,6 +4,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.location.LocationManager;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import io.cordova.lexuncompany.bean.base.Field;
 import io.cordova.lexuncompany.view.CardContentActivity;
 

@@ -25,7 +25,7 @@
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:onClick="closeCard">
+                    android:onClick="closeApp">
 
                     <ImageView
                         android:id="@+id/img_btn_back"
@@ -61,6 +61,7 @@
             android:id="@+id/layout_loading"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"
+            android:src="@mipmap/bg_splash"/>
     </FrameLayout>
 </layout>

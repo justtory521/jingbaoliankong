@@ -66,7 +66,7 @@ public class ScanView extends FrameLayout {
     }
 
     /**
-     * 设置扫描速度
+     * 璁剧疆鎵弿閫熷害
      * @param speed
      */
     public void setLineSpeed(int speed){
@@ -75,7 +75,7 @@ public class ScanView extends FrameLayout {
 
 
     /**
-     * 设置扫描样式
+     * 璁剧疆鎵弿鏍峰紡
      */
     public void setScanLineStyle(int style){
         iv_scan_line.setScanStyle(style);

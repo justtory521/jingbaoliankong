@@ -79,3 +79,11 @@
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
+
+
+-keep class com.amap.api.location.**{*;}
+-keep class com.amap.api.fence.**{*;}
+-keep class com.autonavi.aps.amapapi.model.**{*;}
+
+#zbar
+-keep class cn.bertsir.zbar.Qr.** { *; }

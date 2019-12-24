@@ -226,7 +226,7 @@ public class BaseDbHelper extends SQLiteOpenHelper {
             os.close();
             is.close();
         } catch (IOException e) {
-            Log.e(TAG,"错误信息："+e.toString());
+            Log.e(TAG, "错误信息：" + e.toString());
             e.printStackTrace();
             return false;
         }

@@ -69,9 +69,9 @@ public class MyReceiver extends BroadcastReceiver {
 
     private void jump(Context context, String result) {
         //打开自定义的Activity
-
         if (!TextUtils.isEmpty(result)) {
             try {
+
                 Intent i = new Intent();
                 JSONObject jsonObject = new JSONObject(result);
                 if (CardContentActivity.isRunning) {
@@ -101,6 +101,4 @@ public class MyReceiver extends BroadcastReceiver {
 
         }
     }
-
 }
-

@@ -11,6 +11,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.umeng.analytics.MobclickAgent;
 
 import io.cordova.lexuncompany.R;
 import io.cordova.lexuncompany.inter.TakePicOnClick;
@@ -73,7 +74,11 @@ public class BaseActivity extends AppCompatActivity {
         dialogWindow.setAttributes(lp);
     }
 
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
+    }
 
     /**
      * 显示照片选择器弹出框

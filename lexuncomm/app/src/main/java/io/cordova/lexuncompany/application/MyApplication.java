@@ -1,20 +1,20 @@
 package io.cordova.lexuncompany.application;
 
 import android.app.Application;
-import android.app.Notification;
 import android.content.Context;
 import android.support.multidex.MultiDex;
+import android.util.Log;
 
 import com.facebook.stetho.Stetho;
 import com.tencent.bugly.Bugly;
 import com.tencent.bugly.beta.Beta;
+import com.umeng.analytics.MobclickAgent;
+import com.umeng.commonsdk.UMConfigure;
 import com.yanzhenjie.nohttp.Logger;
 import com.yanzhenjie.nohttp.NoHttp;
 import com.yanzhenjie.nohttp.URLConnectionNetworkExecutor;
 
-import cn.jpush.android.api.BasicPushNotificationBuilder;
 import cn.jpush.android.api.JPushInterface;
-import io.cordova.lexuncompany.R;
 import io.cordova.lexuncompany.bean.base.App;
 import io.cordova.lexuncompany.view.CardContentActivity;
 
@@ -41,18 +41,13 @@ public class MyApplication extends Application {
 
         Stetho.initializeWithDefaults(this);  //初始化Chrome查看Sqlite插件
 
-
         //极光推送
         JPushInterface.setDebugMode(true);
         JPushInterface.init(this);
 
-        BasicPushNotificationBuilder builder = new BasicPushNotificationBuilder(this);
-        builder.statusBarDrawable = R.mipmap.logo;
-        builder.notificationFlags = Notification.FLAG_AUTO_CANCEL//
-                | Notification.FLAG_SHOW_LIGHTS; // 设置为自动消失和呼吸灯闪烁
-        builder.notificationDefaults = Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE |  // 设置为、震动
-                Notification.DEFAULT_LIGHTS; // 设置为呼吸灯闪烁
-        JPushInterface.setPushNotificationBuilder(1, builder);
+        //友盟统计
+        UMConfigure.init(this, "5bbf0375b465f5d4170000f8", "测试环境", UMConfigure.DEVICE_TYPE_PHONE, null);
+        MobclickAgent.setScenarioType(this, MobclickAgent.EScenarioType.E_UM_NORMAL);
 
         this.mInstance = this;
     }

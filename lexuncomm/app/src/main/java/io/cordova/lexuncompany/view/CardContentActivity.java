@@ -51,6 +51,10 @@ import java.util.ArrayList;
 import java.util.Random;
 import cn.jpush.android.api.JPushInterface;
 import io.cordova.lexuncompany.R;
+import io.cordova.lexuncompany.amap.LocationService;
+import io.cordova.lexuncompany.amap.LocationStatusManager;
+import io.cordova.lexuncompany.amap.Utils;
+import io.cordova.lexuncompany.bean.IDCardBean;
 import io.cordova.lexuncompany.bean.base.App;
 import io.cordova.lexuncompany.bean.base.Request;
 import io.cordova.lexuncompany.databinding.ActivityCardContentBinding;
@@ -91,7 +95,6 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
 
     private AndroidtoJS androidtoJS;
 
-    private NotificationManager notificationManager = null;
 
     //巡逻callback
     private String locationCallback;
@@ -119,17 +122,14 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
         setListener();
 
 
-
-
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(RECEIVER_ACTION);
         registerReceiver(locationChangeBroadcastReceiver, intentFilter);
 
 
-
         checkUpdate();
-    }
 
+    }
 
     /**
      * ji
@@ -202,9 +202,9 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (RECEIVER_ACTION.equals(action)) {
-
+                String speed = intent.getStringExtra("speed");
                 String location= intent.getStringExtra("location");
-                sendCallback(locationCallback, "200", "success", location);
+                sendCallback(locationCallback, "200", "success", location,speed);
 
             }
         }
@@ -214,15 +214,16 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
     /**
      * @param callback
      * @param status
-     * @param msg
+     * @param msg   定位
      * @param value
      */
-    private void sendCallback(String callback, String status, String msg, String value) {
+    private void sendCallback(String callback, String status, String msg, String value,String speed) {
 
         try {
             JSONObject jsonObject = new JSONObject();
             JSONObject data = new JSONObject();
             data.put("value", value);
+            data.put("sp",speed);
             jsonObject.put("status", status);
             jsonObject.put("msg", msg);
             jsonObject.put("data", data);
@@ -235,6 +236,23 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
     }
 
 
+    /**
+     * 开始定位服务
+     */
+    public void startLocationService(String callback) {
+        locationCallback = callback;
+        getApplicationContext().startService(new Intent(this, LocationService.class));
+        LocationStatusManager.getInstance().resetToInit(getApplicationContext());
+    }
+
+    /**
+     * 关闭服务
+     * 先关闭守护进程，再关闭定位服务
+     */
+    public void stopLocationService() {
+        sendBroadcast(Utils.getCloseBrodecastIntent());
+        LocationStatusManager.getInstance().resetToInit(getApplicationContext());
+    }
 
 
     /**
@@ -397,15 +415,15 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
             }
         });
 
-        mBinding.webView.setOnKeyListener((view, i, keyEvent) -> {
-            if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
-                if (i == KeyEvent.KEYCODE_BACK && mBinding.webView.canGoBack()) {
-                    mBinding.webView.goBack();
-                    return true;
-                }
-            }
-            return false;
-        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mBinding.webView.canGoBack()) {
+            mBinding.webView.goBack();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     /**
@@ -566,6 +584,35 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
                 mListener.getImage(Base64.encode(ImageUtils.getInstance().image2byte(img)));
             }
 
+        } else if (resultCode == RESULT_OK && requestCode == Request.StartActivityRspCode.SCAN_ID_CARD) {
+
+            try {
+                IDCardBean idCardBean = (IDCardBean) data.getSerializableExtra("id_card");
+                if (idCardBean != null) {
+                    JSONObject jsonObject = new JSONObject();
+                    JSONObject value = new JSONObject();
+                    if (idCardBean.getOrientation() == 1) {
+                        value.put("name", idCardBean.getName());
+                        value.put("gender", idCardBean.getGender());
+                        value.put("address", idCardBean.getAddress());
+                        value.put("IDNum", idCardBean.getNumber());
+                        value.put("nation", idCardBean.getNation());
+                    } else {
+                        value.put("issue", idCardBean.getPolice());
+                        value.put("valid", idCardBean.getDate());
+                    }
+
+                    jsonObject.put("status", "200");
+                    jsonObject.put("msg", "success");
+                    jsonObject.put("data", value);
+
+                    callBackResult(idCardBean.getCallback(), jsonObject.toString());
+                }
+
+            } catch (JSONException e) {
+                Log.e(TAG, e.toString());
+                e.printStackTrace();
+            }
         }
     }
 
