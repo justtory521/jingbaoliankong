@@ -80,7 +80,7 @@
         tools:replace="android:theme">
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="40c97c6f8831152eb960f6730618523f"/>
+            android:value="3c50a9549348f39d37f91414365d9abd"/>
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
@@ -89,6 +89,14 @@
         <meta-data
             android:name="com.openinstall.APP_KEY"
             android:value="uhus7a"/>
+
+
+        <meta-data
+            android:name="JPUSH_CHANNEL"
+            android:value="developer-default"/>
+        <meta-data
+            android:name="JPUSH_APPKEY"
+            android:value="b17a974bc203105aa4391a4e"/>
 
         <activity
             android:name="com.tencent.bugly.beta.ui.BetaActivity"
@@ -235,12 +243,6 @@
             </intent-filter>
         </receiver>
 
-        <meta-data
-            android:name="JPUSH_CHANNEL"
-            android:value="developer-default"/>
-        <meta-data
-            android:name="JPUSH_APPKEY"
-            android:value="b17a974bc203105aa4391a4e"/>
     </application>
 
 

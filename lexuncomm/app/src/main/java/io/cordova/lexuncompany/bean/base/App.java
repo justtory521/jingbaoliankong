@@ -45,7 +45,9 @@ public class App {
     }
 
     public static class LexunCard {
-        public static final String CardUrl = "http://122.114.207.138:19000";
+//        public static final String CardUrl = "http://122.114.207.138:19000";
+
+        public static final String CardUrl = "http://183.129.130.119:13142";
 
         public static final String BUGLY_APPID = "fb234f78a6";  //bugly
 
