@@ -129,6 +129,7 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
 
         checkUpdate();
 
+
     }
 
     /**
@@ -403,7 +404,6 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
         androidtoJS = new AndroidtoJS(this);
         mBinding.webView.addJavascriptInterface(androidtoJS, "NativeForJSUnits");
         mBinding.webView.loadUrl(App.LexunCard.CardUrl);
-
     }
 
     private void setListener() {
