@@ -422,7 +422,9 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
         if (mBinding.webView.canGoBack()) {
             mBinding.webView.goBack();
         } else {
-            super.onBackPressed();
+            Intent home = new Intent(Intent.ACTION_MAIN);
+            home.addCategory(Intent.CATEGORY_HOME);
+            startActivity(home);
         }
     }
 
