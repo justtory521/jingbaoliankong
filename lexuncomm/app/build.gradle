@@ -51,6 +51,13 @@ android {
         minSdkVersion 19
         multiDexEnabled true
 
+        //极光推送
+        manifestPlaceholders = [
+                JPUSH_PKGNAME: "com.tdr.jingbaoliankong",
+                JPUSH_APPKEY : "b17a974bc203105aa4391a4e", //JPush 上注册的包名对应的 Appkey.
+                JPUSH_CHANNEL: "developer-default", //暂时填写默认值即可.
+        ]
+
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "armeabi-v8a","x86","x86_64"
         }
@@ -102,7 +109,6 @@ dependencies {
     //集成bugly
     implementation 'com.tencent.bugly:crashreport_upgrade:latest.release'
     implementation 'com.tencent.bugly:nativecrashreport:latest.release'
-    implementation files('libs/jcore-android-1.2.0.jar')
     implementation 'org.jetbrains:annotations:15.0'
     //友盟
     implementation 'com.umeng.sdk:common:1.5.0'
@@ -127,5 +133,9 @@ dependencies {
     //图片选择
     implementation 'com.github.LuckSiege.PictureSelector:picture_library:v2.2.4'
     implementation project(path: ':zbar')
+
+    //极光推送
+    implementation 'cn.jiguang.sdk:jpush:3.5.4'
+    implementation 'cn.jiguang.sdk:jcore:2.2.4'
 
 }
