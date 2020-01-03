@@ -45,6 +45,9 @@ import com.tencent.bugly.beta.Beta;
 import com.tencent.bugly.beta.UpgradeInfo;
 import com.tencent.bugly.beta.ui.UILifecycleListener;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,6 +56,7 @@ import java.util.Random;
 import cn.jpush.android.api.JPushInterface;
 import io.cordova.lexuncompany.R;
 import io.cordova.lexuncompany.bean.IDCardBean;
+import io.cordova.lexuncompany.bean.ScanResultBean;
 import io.cordova.lexuncompany.bean.base.App;
 import io.cordova.lexuncompany.bean.base.Request;
 import io.cordova.lexuncompany.databinding.ActivityCardContentBinding;
@@ -66,8 +70,9 @@ import io.cordova.lexuncompany.units.BaseUnits;
 import io.cordova.lexuncompany.units.ConfigUnits;
 import io.cordova.lexuncompany.units.FormatUtils;
 import io.cordova.lexuncompany.units.ImageUtils;
+import io.cordova.lexuncompany.units.LogUtils;
 import io.cordova.lexuncompany.units.PermissionUtils;
-import io.cordova.lexuncompany.units.ViewUnits;
+
 
 import static io.cordova.lexuncompany.bean.base.Request.Permissions.REQUEST_ALL_PERMISSIONS;
 
@@ -79,14 +84,12 @@ import static io.cordova.lexuncompany.bean.base.Request.Permissions.REQUEST_ALL_
 
 public class CardContentActivity extends BaseActivity implements AndroidToJSCallBack {
     private static final String TAG = "libin";
-    private static CardContentActivity mInstance;
     private ActivityCardContentBinding mBinding;
 
     private GetImageListener mListener; //获取图片监听类
 
     private static boolean isFirstLoaded = true;  //标记是否为第一次加载
     private IntentFilter mFilter = new IntentFilter();
-    public static boolean isRunning = false;
 
     //开启gps
     private AlertDialog alertDialog;
@@ -101,6 +104,7 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_card_content);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         AndroidBug5497Workaround.assistActivity(mBinding.getRoot());  //解决在沉浸式菜单栏中，软键盘不能顶起页面的bug
@@ -117,7 +121,6 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
         setListener();
 
         checkUpdate();
-
 
     }
 
@@ -142,6 +145,9 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
                 notificationChannel.enableLights(true);//是否在桌面icon右上角展示小圆点
                 notificationChannel.setLightColor(Color.BLUE); //小圆点颜色
                 notificationChannel.setShowBadge(true); //是否在久按桌面图标时显示此渠道的通知
+                notificationChannel.enableVibration(false);
+                notificationChannel.setVibrationPattern(new long[]{0});
+                notificationChannel.setSound(null, null);
                 notificationManager.createNotificationChannel(notificationChannel);
                 isCreateChannel = true;
             }
@@ -152,6 +158,8 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
         builder.setSmallIcon(R.mipmap.logo)
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText("正在后台运行")
+                .setVibrate(new long[]{0})
+                .setSound(null)
                 .setWhen(System.currentTimeMillis());
 
         notification = builder.build();
@@ -224,30 +232,42 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
         Bugly.init(getApplicationContext(), App.LexunCard.BUGLY_APPID, false);
     }
 
+    /**
+     * 二维码扫描回调
+     *
+     * @param scanResultBean
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void scanResult(ScanResultBean scanResultBean) {
+        sendCallback(scanResultBean.getCallback(),"200","success",scanResultBean.getScanResult());
+    }
+
+
 
     /**
      * @param callback
      * @param status
-     * @param msg   定位
+     * @param msg
      * @param value
      */
-    private void sendCallback(String callback, String status, String msg, String value,String speed) {
+    private void sendCallback(String callback, String status, String msg, String value) {
 
         try {
             JSONObject jsonObject = new JSONObject();
             JSONObject data = new JSONObject();
             data.put("value", value);
-            data.put("sp",speed);
             jsonObject.put("status", status);
             jsonObject.put("msg", msg);
             jsonObject.put("data", data);
+            LogUtils.log(jsonObject.toString());
             callBackResult(callback, jsonObject.toString());
         } catch (JSONException e) {
-            Log.e(TAG, e.toString());
+            LogUtils.log( e.toString());
             callBackResult(callback, "未知错误，联系管理员");
             e.printStackTrace();
         }
     }
+
 
 
 
@@ -307,20 +327,9 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
     @Override
     protected void onResume() {
         super.onResume();
-        isRunning = true;
         JPushInterface.setAlias(this, new Random().nextInt(900) + 100, BaseUnits.getInstance().getPhoneKey());
         isOpenGps();
 
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        isRunning = false;
-    }
-
-    public static CardContentActivity getInstance() {
-        return mInstance;
     }
 
     @Override
@@ -333,7 +342,6 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
     }
 
 
-    @JavascriptInterface
     public void initView() {
         WebSettings webSettings = mBinding.webView.getSettings();
         webSettings.setJavaScriptEnabled(true);  //设置与JS交互权限
@@ -542,7 +550,7 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
         unregisterReceiver(mBroadcastReceiver);
         destroyWebView();
         mBinding = null;
-
+        EventBus.getDefault().register(this);
         super.onDestroy();
 
     }
