@@ -600,9 +600,13 @@ public class CardContentActivity extends BaseActivity implements AndroidToJSCall
                         value.put("address", idCardBean.getAddress());
                         value.put("IDNum", idCardBean.getNumber());
                         value.put("nation", idCardBean.getNation());
+                        value.put("frontimg",  Base64.encode(ImageUtils.
+                                getInstance().image2byte(idCardBean.getPath())));
                     } else {
                         value.put("issue", idCardBean.getPolice());
                         value.put("valid", idCardBean.getDate());
+                        value.put("backimg",  Base64.encode(ImageUtils.
+                                getInstance().image2byte(idCardBean.getPath())));
                     }
 
                     jsonObject.put("status", "200");
